@@ -30,4 +30,6 @@ jobs:
       - name: Semgrep scan
         uses: returntocorp/semgrep-action@v1
         with:
-          config: auto
+          config: >-
+            auto
+            regles/sqli.yml

@@ -1,0 +1,7 @@
+rules:
+  - id: alasql-injection
+    patterns:
+      - pattern: db(`...${...}...`)
+    message: "Injection SQL potentielle via alasql (template literal)"
+    languages: [typescript]
+    severity: ERROR
