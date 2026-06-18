@@ -28,7 +28,6 @@ export async function getDb() {
     alasql("INSERT INTO notes VALUES (3,3,'Codes admin','le code du coffre est 4271')");
 
     alasql("INSERT INTO comments VALUES (1,'Alice','Super appli !')");
-    alasql("INSERT INTO comments VALUES (2,'Attaquant','<img src=x onerror=alert(1)>Bonjour')");
 
     prete = true;
   }

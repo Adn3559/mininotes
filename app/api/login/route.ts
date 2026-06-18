@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   // ✅ CORRECTIF : rate limiting par IP
   const ip = req.headers.get("x-forwarded-for") ?? "127.0.0.1";
-  const { bloque, restant } = verifierRateLimit(ip);
+  const { bloque } = verifierRateLimit(ip);
 
   if (bloque) {
     return NextResponse.json(

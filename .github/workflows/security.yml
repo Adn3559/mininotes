@@ -1,0 +1,33 @@
+name: Sécurité
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-et-audit:
+    name: "ESLint + npm audit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx eslint .
+      - run: npm audit --audit-level=high
+
+  semgrep:
+    name: "Semgrep (SAST)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Semgrep scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: auto
