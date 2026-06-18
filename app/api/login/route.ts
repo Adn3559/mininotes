@@ -1,20 +1,29 @@
-// app/api/login/route.ts — ✅ injection SQL + bcrypt corrigés, fuite de données + message bavard corrigés ici
+// app/api/login/route.ts — ✅ CORRIGÉ : injection SQL + bcrypt + fuite + rate limiting
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/sqldb";
 import bcrypt from "bcryptjs";
+import { verifierRateLimit, reinitialiserRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  // ✅ CORRECTIF : rate limiting par IP
+  const ip = req.headers.get("x-forwarded-for") ?? "127.0.0.1";
+  const { bloque, restant } = verifierRateLimit(ip);
+
+  if (bloque) {
+    return NextResponse.json(
+      { error: "Trop de tentatives, réessayez dans 1 minute" },
+      { status: 429 }
+    );
+  }
+
   const { email, password } = await req.json();
   const db = await getDb();
 
   const sql = "SELECT * FROM users WHERE email = ?";
-  console.log("🔎 SQL exécuté :", sql, "| params:", [email]);
-
   const rows = db(sql, [email]) as Array<{ id: number; email: string; password: string; role: string }>;
 
-  // ✅ CORRECTIF : message NEUTRE et IDENTIQUE, qu'on soit dans ce cas...
   if (rows.length === 0) {
     return NextResponse.json(
       { error: "Email ou mot de passe invalide" },
@@ -25,7 +34,6 @@ export async function POST(req: NextRequest) {
   const user = rows[0];
   const motDePasseValide = await bcrypt.compare(password, user.password);
 
-  // ✅ ... ou dans celui-ci : même message, même statut → pas d'énumération possible
   if (!motDePasseValide) {
     return NextResponse.json(
       { error: "Email ou mot de passe invalide" },
@@ -33,7 +41,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ✅ CORRECTIF : réponse MINIMALE — jamais le hash du mot de passe
+  // ✅ login réussi → on remet le compteur à zéro
+  reinitialiserRateLimit(ip);
+
   const res = NextResponse.json({
     message: "Connecté",
     user: { id: user.id, email: user.email, role: user.role },
