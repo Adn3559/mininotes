@@ -25,6 +25,6 @@
     "eslint-config-next": "^16.2.9",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-security": "^4.0.1",
-    "typescript": "^5"
+    "typescript": "^6"
   }
 }
