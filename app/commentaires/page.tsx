@@ -1,10 +1,10 @@
-// app/commentaires/page.tsx — ⚠️ XSS STOCKÉ : on injecte du HTML brut venu d'un utilisateur — labo
+// app/commentaires/page.tsx — ⚠️ XSS encore présent — à corriger plus tard
 import { getDb } from "@/lib/sqldb";
 
 export const runtime = "nodejs";
 
-export default function CommentairesPage() {
-  const db = getDb();
+export default async function CommentairesPage() {
+  const db = await getDb();
   const comments = db("SELECT * FROM comments") as Array<{
     id: number;
     author: string;
@@ -17,7 +17,6 @@ export default function CommentairesPage() {
       {comments.map((c) => (
         <div key={c.id} style={{ marginBottom: 12 }}>
           <b>{c.author} :</b>{" "}
-          {/* ⚠️ FAILLE : HTML brut d'un utilisateur injecté tel quel */}
           <span dangerouslySetInnerHTML={{ __html: c.html }} />
         </div>
       ))}
