@@ -1,4 +1,4 @@
-// app/commentaires/page.tsx — ⚠️ XSS encore présent — à corriger plus tard
+// app/commentaires/page.tsx — ✅ CORRIGÉ : XSS stocké (affichage échappé par défaut de React)
 import { getDb } from "@/lib/sqldb";
 
 export const runtime = "nodejs";
@@ -17,7 +17,8 @@ export default async function CommentairesPage() {
       {comments.map((c) => (
         <div key={c.id} style={{ marginBottom: 12 }}>
           <b>{c.author} :</b>{" "}
-          <span dangerouslySetInnerHTML={{ __html: c.html }} />
+          {/* ✅ CORRECTIF : affichage échappé via {c.html} au lieu de dangerouslySetInnerHTML */}
+          {c.html}
         </div>
       ))}
     </main>
