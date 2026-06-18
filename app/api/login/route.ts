@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   });
   res.cookies.set("mininotes_session", String(user.id), {
     httpOnly: true,
-    secure: true,
+    secure: false,
     sameSite: "lax",
     path: "/",
   });

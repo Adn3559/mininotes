@@ -1,10 +1,9 @@
-// app/api/notes/route.ts — ⚠️ FAILLES restantes (SQLi, validation, CSRF) — à corriger plus tard
+// app/api/notes/route.ts — ✅ CORRIGÉ : injections SQL (requêtes paramétrées)
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/sqldb";
 
 export const runtime = "nodejs";
 
-// GET /api/notes → "mes" notes (celles du user connecté)
 export async function GET(req: NextRequest) {
   const sessionId = req.cookies.get("mininotes_session")?.value;
   if (!sessionId) {
@@ -12,15 +11,11 @@ export async function GET(req: NextRequest) {
   }
   const db = await getDb();
 
-  // ⚠️ FAILLE encore présente : sessionId COLLÉ dans la requête → corrigée à l'étape suivante
-  const sql = `SELECT * FROM notes WHERE userId = ${sessionId}`;
-  console.log("🔎 SQL exécuté :", sql);
-
-  const rows = db(sql);
+  // ✅ CORRECTIF : sessionId passé en paramètre, jamais collé dans la requête
+  const rows = db("SELECT * FROM notes WHERE userId = ?", [Number(sessionId)]);
   return NextResponse.json({ notes: rows });
 }
 
-// POST /api/notes → créer une note
 export async function POST(req: NextRequest) {
   const sessionId = req.cookies.get("mininotes_session")?.value;
   if (!sessionId) {
@@ -33,10 +28,8 @@ export async function POST(req: NextRequest) {
   const nextId =
     (db("SELECT MAX(id) AS m FROM notes")[0] as { m: number }).m + 1;
 
-  // ⚠️ FAILLE encore présente : titre/contenu collés → corrigée à l'étape suivante
-  const sql = `INSERT INTO notes VALUES (${nextId}, ${sessionId}, '${titre}', '${contenu}')`;
-  console.log("🔎 SQL exécuté :", sql);
-  db(sql);
+  // ✅ CORRECTIF : titre/contenu passés en paramètres, jamais collés dans la requête
+  db("INSERT INTO notes VALUES (?,?,?,?)", [nextId, Number(sessionId), titre, contenu]);
 
   return NextResponse.json({ message: "Note créée", id: nextId });
 }
