@@ -38,6 +38,11 @@ export async function POST(req: NextRequest) {
     message: "Connecté",
     user: { id: user.id, email: user.email, role: user.role },
   });
-  res.cookies.set("mininotes_session", String(user.id), { httpOnly: false, path: "/" });
+  res.cookies.set("mininotes_session", String(user.id), {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+  });
   return res;
 }
