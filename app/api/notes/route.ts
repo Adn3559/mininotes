@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Non connecté" }, { status: 401 });
   }
   const db = await getDb();
-  const rows = db("SELECT * FROM notes WHERE userId = ?", [Number(sessionId)]);
+  const rows = db(`SELECT * FROM notes WHERE userId = ${sessionId}`);
   return NextResponse.json({ notes: rows });
 }
 
