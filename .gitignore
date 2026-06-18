@@ -44,3 +44,4 @@ node_modules/
 .env.local
 moi.txt
 !.env.example
+session*.txt
